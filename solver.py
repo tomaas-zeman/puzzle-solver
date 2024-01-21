@@ -29,8 +29,8 @@ def solve(shapes: list[Shape], grid: Grid):
                         stack.append((next_shapes, next_grid))
 
 
-for solution in solve(*tasks.task_vojta_game_full()):
+for solution in solve(*tasks.task_vojta_game_level1_cat()):
     print(solution.state, end="\n\n")
-    with open("solutions/task_vojta_game_full.txt", "a") as file:
+    with open("solutions/task_vojta_game_level1_cat.txt", "a") as file:
         file.write(str(solution.state))
         file.write("\n\n")

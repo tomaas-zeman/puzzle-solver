@@ -69,6 +69,7 @@ class Shape:
 @dataclass
 class Grid:
     state: np.ndarray
+    random_shape_mode: bool = False
 
     def place(self, shape: Shape, variation: np.ndarray):
         return (
@@ -93,7 +94,7 @@ class Grid:
         if not shapes:
             return True
 
-        smallest_shape = sorted(shapes, key=lambda s: np.count_nonzero(s.shape == 1))[0]
+        sorted_shapes = sorted(shapes, key=lambda s: np.count_nonzero(s.shape == 1))
         state = fill_unused_space()
 
         for row in range(state.shape[0]):
@@ -107,8 +108,13 @@ class Grid:
                                 queue.append(neighbor)
                                 hole.add(neighbor)
 
-                    if len(hole) < np.count_nonzero(smallest_shape.shape == 1):
+                    if len(hole) < np.count_nonzero(sorted_shapes[0].shape == 1):
                         return False
+
+                    if self.random_shape_mode and len(hole) > np.count_nonzero(
+                        sorted_shapes[-1].shape == 1
+                    ):
+                        return True
 
                     min_row = min([p[0] for p in hole])
                     max_row = max([p[0] for p in hole])
@@ -116,7 +122,7 @@ class Grid:
                     max_col = max([p[1] for p in hole])
                     slice = state[min_row : max_row + 1, min_col : max_col + 1]
                     if all(
-                        not fits_in_slice(slice, v) for v in smallest_shape.variations
+                        not fits_in_slice(slice, v) for v in sorted_shapes[0].variations
                     ):
                         return False
 
@@ -136,7 +142,7 @@ class Grid:
         ]
 
     def _copy(self):
-        return Grid(np.copy(self.state))
+        return Grid(np.copy(self.state), random_shape_mode=self.random_shape_mode)
 
     def _update_state(
         self, position: tuple[int, int], shape: Shape, variation: np.ndarray
