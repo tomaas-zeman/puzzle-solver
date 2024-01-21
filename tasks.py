@@ -31,7 +31,7 @@ def task_hunubul():
                 [[0, 0, 1, 1], [1, 1, 1, 0]],
             ]
         )
-    ], Grid(np.zeros((6, 6), dtype=np.uint8))
+    ], Grid(np.zeros((6, 6), dtype=np.int8))
 
 
 def task_interview():
@@ -68,7 +68,7 @@ def task_interview():
                 ],
             ]
         )
-    ], Grid(np.zeros((10, 10), dtype=np.uint8))
+    ], Grid(np.zeros((10, 10), dtype=np.int8))
 
 
 def task_vojta_game_full():
@@ -95,7 +95,7 @@ def task_vojta_game_full():
                 [[1, 1, 1, 1]],
             ]
         )
-    ], Grid(np.zeros((8, 8), dtype=np.uint8))
+    ], Grid(np.zeros((8, 8), dtype=np.int8))
 
 
 def task_vojta_game_level1():
@@ -114,7 +114,7 @@ def task_vojta_game_level1():
                 [[1, 1, 1, 1]],
             ]
         )
-    ], Grid(np.zeros((4, 9), dtype=np.uint8))
+    ], Grid(np.zeros((4, 9), dtype=np.int8))
 
 
 def task_vojta_game_level2():
@@ -135,7 +135,7 @@ def task_vojta_game_level2():
                 [[1, 1, 1, 1]],
             ]
         )
-    ], Grid(np.zeros((6, 6), dtype=np.uint8))
+    ], Grid(np.zeros((6, 6), dtype=np.int8))
 
 
 def task_simple():
@@ -153,4 +153,4 @@ def task_simple():
                 [[1]],
             ]
         )
-    ], Grid(np.zeros((3, 4), dtype=np.uint8))
+    ], Grid(np.zeros((3, 4), dtype=np.int8))

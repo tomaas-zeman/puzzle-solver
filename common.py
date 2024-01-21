@@ -1,24 +1,29 @@
 from __future__ import annotations
 
+from collections import deque
 from dataclasses import dataclass
 
 import numpy as np
 
 
-def find_valid_placement(grid: Grid, variation: np.ndarray):
-    def fits_in_slice(slice: np.ndarray, var: np.ndarray):
-        for row in range(slice.shape[0]):
-            for col in range(slice.shape[1]):
-                if slice[(row, col)] != 0 and var[(row, col)] != 0:
-                    return False
-        return True
+def fits_in_slice(slice: np.ndarray, var: np.ndarray):
+    if slice.shape != var.shape:
+        return False
 
+    for row in range(slice.shape[0]):
+        for col in range(slice.shape[1]):
+            if slice[(row, col)] != 0 and var[(row, col)] != 0:
+                return False
+    return True
+
+
+def find_valid_placement(grid: Grid, variation: np.ndarray):
     for row in range(grid.state.shape[0]):
         for col in range(grid.state.shape[1]):
             slice = grid.state[
                 row : row + variation.shape[0], col : col + variation.shape[1]
             ]
-            if slice.shape == variation.shape and fits_in_slice(slice, variation):
+            if fits_in_slice(slice, variation):
                 return row, col
 
     return None
@@ -71,6 +76,64 @@ class Grid:
             if (position := find_valid_placement(self, variation)) is not None
             else None
         )
+
+    def can_cover_holes(self, shapes: list[Shape]):
+        def fill_unused_space():
+            state = np.copy(self.state)
+
+            queue = deque([(state.shape[0] - 1, state.shape[1] - 1)])
+            while queue:
+                for neighbor in self._neighbors(queue.pop()):
+                    if state[neighbor] == 0:
+                        state[neighbor] = -1
+                        queue.append(neighbor)
+
+            return state
+
+        if not shapes:
+            return True
+
+        smallest_shape = sorted(shapes, key=lambda s: np.count_nonzero(s.shape == 1))[0]
+        state = fill_unused_space()
+
+        for row in range(state.shape[0]):
+            for col in range(state.shape[1]):
+                if state[row, col] == 0:
+                    hole = {(row, col)}
+                    queue = deque([(row, col)])
+                    while queue:
+                        for neighbor in self._neighbors(queue.pop()):
+                            if state[neighbor] == 0 and neighbor not in hole:
+                                queue.append(neighbor)
+                                hole.add(neighbor)
+
+                    if len(hole) < np.count_nonzero(smallest_shape.shape == 1):
+                        return False
+
+                    min_row = min([p[0] for p in hole])
+                    max_row = max([p[0] for p in hole])
+                    min_col = min([p[1] for p in hole])
+                    max_col = max([p[1] for p in hole])
+                    slice = state[min_row : max_row + 1, min_col : max_col + 1]
+                    if all(
+                        not fits_in_slice(slice, v) for v in smallest_shape.variations
+                    ):
+                        return False
+
+        return True
+
+    def _neighbors(self, point: tuple[int, int]):
+        row, col = point
+        return [
+            n
+            for n in [
+                (row, col - 1),
+                (row, col + 1),
+                (row - 1, col),
+                (row + 1, col),
+            ]
+            if 0 <= n[0] < self.state.shape[0] and 0 <= n[1] < self.state.shape[1]
+        ]
 
     def _copy(self):
         return Grid(np.copy(self.state))

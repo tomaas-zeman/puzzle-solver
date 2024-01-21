@@ -25,10 +25,10 @@ def solve(shapes: list[Shape], grid: Grid):
                     if all(
                         next_shape.still_fits_grid(next_grid)
                         for next_shape in next_shapes
-                    ):
+                    ) and next_grid.can_cover_holes(next_shapes):
                         stack.append((next_shapes, next_grid))
 
 
-for solution in solve(*tasks.task_vojta_game_level2()):
+for solution in solve(*tasks.task_hunubul()):
     print(solution.state)
     print("-------------")
